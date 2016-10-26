@@ -1,40 +1,47 @@
+extern crate num_traits;
+use std;
 use categorize::EdgeProperties;
+
+pub trait Float: std::convert::From<f32> {}
 
 // Coord are coordinates in decimal degress WGS84
 #[derive(Copy, Clone)]
-pub struct Coord {
-    pub lon: f64,
-    pub lat: f64,
+pub struct Coord<T: Float> {
+    pub lon: T,
+    pub lat: T,
 }
 
 // Node is the OpenStreetMap node
 #[derive(Copy, Clone)]
-pub struct Node {
+pub struct Node<T: Float> {
     pub id: i64,
-    pub coord: Coord,
+    pub coord: Coord<T>,
     pub uses: i16,
 }
 
-impl Node {
-    pub fn new() -> Node {
+impl<T: Float> Node<T> {
+    pub fn new() -> Self {
         Node {
             id: 0,
-            coord: Coord { lon: 0., lat: 0. },
+            coord: Coord::<T> {
+                lon: T::from(0.).unwrap(),
+                lat: T::from(0.).unwrap(),
+            },
             uses: 0,
         }
     }
 }
 
 // Edge is a topological representation with only two extremities and no geometry
-pub struct Edge {
+pub struct Edge<T: Float> {
     pub id: i64,
     pub source: i64,
     pub target: i64,
-    pub geometry: Vec<Coord>,
+    pub geometry: Vec<Coord<T>>,
     pub properties: EdgeProperties,
 }
 
-impl Edge {
+impl<T: Float + std::fmt::Display> Edge<T> {
     // Geometry in the well known format
     pub fn as_wkt(&self) -> String {
         let coords: Vec<String> = self.geometry
@@ -46,22 +53,22 @@ impl Edge {
     }
 
     // Length in meters of the edge
-    pub fn length(&self) -> f64 {
+    pub fn length(&self) -> T {
         self.geometry.windows(2).map(|coords| distance(coords[0], coords[1])).sum()
     }
 }
 
-pub fn distance(start: Coord, end: Coord) -> f64 {
-    let r: f64 = 6378100.0;
+pub fn distance<T: Float>(start: Coord<T>, end: Coord<T>) -> T {
+    let r = T::from(6378100.0).unwrap();
 
-    let d_lon: f64 = (end.lon - start.lon).to_radians();
-    let d_lat: f64 = (end.lat - start.lat).to_radians();
-    let lat1: f64 = (start.lat).to_radians();
-    let lat2: f64 = (end.lat).to_radians();
+    let d_lon = (end.lon - start.lon).to_radians();
+    let d_lat = (end.lat - start.lat).to_radians();
+    let lat1 = (start.lat).to_radians();
+    let lat2 = (end.lat).to_radians();
 
-    let a: f64 = ((d_lat / 2.0).sin()) * ((d_lat / 2.0).sin()) +
-                 ((d_lon / 2.0).sin()) * ((d_lon / 2.0).sin()) * (lat1.cos()) * (lat2.cos());
-    let c: f64 = 2.0 * ((a.sqrt()).atan2((1.0 - a).sqrt()));
+    let a = ((d_lat / 2.0).sin()) * ((d_lat / 2.0).sin()) +
+            ((d_lon / 2.0).sin()) * ((d_lon / 2.0).sin()) * (lat1.cos()) * (lat2.cos());
+    let c = 2.0 as T * ((a.sqrt()).atan2((1.0 as T - a).sqrt()));
 
     return r * c;
 }
@@ -73,9 +80,9 @@ fn test_as_wkt() {
         id: 0,
         source: 0,
         target: 0,
-        geometry: vec![Coord { lon: 0., lat: 0. },
-                       Coord { lon: 1., lat: 0. },
-                       Coord { lon: 0., lat: 1. }],
+        geometry: vec![Coord<f64> { lon: 0., lat: 0. },
+                       Coord<f64> { lon: 1., lat: 0. },
+                       Coord<f64> { lon: 0., lat: 1. }],
         properties: EdgeProperties::new(),
     };
     assert!("LINESTRING(0.0000000 0.0000000, 1.0000000 0.0000000, 0.0000000 1.0000000)" ==
@@ -85,8 +92,8 @@ fn test_as_wkt() {
 
 #[test]
 fn test_distance() {
-    let a = Coord { lon: 0., lat: 0. };
-    let b = Coord { lon: 1., lat: 0. };
+    let a = Coord::<f64> { lon: 0., lat: 0. };
+    let b = Coord::<f64> { lon: 1., lat: 0. };
 
     assert!((1. - (distance(a, b) / (1853. * 60.))).abs() < 0.01);
 }

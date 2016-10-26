@@ -1,4 +1,6 @@
 extern crate osmpbfreader;
+extern crate num_traits;
+
 use std::collections::{HashMap, HashSet};
 use models::*;
 use categorize::*;
@@ -11,14 +13,14 @@ struct Way {
     properties: EdgeProperties,
 }
 
-struct Reader {
-    nodes: HashMap<i64, Node>,
+struct Reader<T: Float> {
+    nodes: HashMap<i64, Node<T>>,
     ways: Vec<Way>,
     nodes_to_keep: HashSet<i64>,
 }
 
-impl Reader {
-    fn new() -> Reader {
+impl<T: Float> Reader<T> {
+    fn new() -> Self {
         Reader {
             nodes: HashMap::new(),
             ways: Vec::new(),
@@ -44,7 +46,7 @@ impl Reader {
     }
 
 
-    fn split_way(&self, way: &Way) -> Vec<Edge> {
+    fn split_way(&self, way: &Way) -> Vec<Edge<T>> {
         let mut result = Vec::new();
 
         let mut source = 0;
@@ -112,8 +114,8 @@ impl Reader {
                         let mut n = Node::new();
                         n.id = node.id;
                         n.coord = Coord {
-                            lon: node.lon,
-                            lat: node.lat,
+                            lon: T::from(node.lon).unwrap(),
+                            lat: node.lat as T,
                         };
                         self.nodes.insert(node.id, n);
                     }
@@ -123,7 +125,7 @@ impl Reader {
         }
     }
 
-    fn nodes(self) -> Vec<Node> {
+    fn nodes(self) -> Vec<Node<T>> {
         self.nodes
             .into_iter()
             .map(|(_, node)| node)
@@ -131,13 +133,13 @@ impl Reader {
             .collect()
     }
 
-    fn edges(&self) -> Vec<Edge> {
+    fn edges(&self) -> Vec<Edge<T>> {
         self.ways.iter().flat_map(|way| self.split_way(way)).collect()
     }
 }
 
 // Read all the nodes and ways of the osm.pbf file
-pub fn read(filename: &str) -> Result<(Vec<Node>, Vec<Edge>), String> {
+pub fn read<T: Float>(filename: &str) -> Result<(Vec<Node<T>>, Vec<Edge<T>>), String> {
     let mut r = Reader::new();
     let path = std::path::Path::new(filename);
     let file = try!(std::fs::File::open(&path).map_err(|e| e.to_string()));

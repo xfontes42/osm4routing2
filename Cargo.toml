@@ -11,6 +11,7 @@ license = "MIT"
 osmpbfreader = "0.3"
 csv = "0.14.7"
 docopt = "0.6.86"
+num-traits = "0.1.36"
 
 [lib]
 name = "osm4routing"

@@ -1,9 +1,10 @@
 extern crate csv;
+extern crate num_traits;
 use models::*;
 use std;
 
 
-pub fn csv(nodes: Vec<Node>, edges: Vec<Edge>) {
+pub fn csv<T: Float>(nodes: Vec<Node<T>>, edges: Vec<Edge<T>>) {
     let edges_path = std::path::Path::new("edges.csv");
     let mut edges_csv = csv::Writer::from_file(edges_path).unwrap();
     edges_csv.encode(vec!["id",
