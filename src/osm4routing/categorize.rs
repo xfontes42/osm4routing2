@@ -41,6 +41,7 @@ pub struct EdgeProperties {
     pub car_backward: i8,
     pub bike_forward: i8,
     pub bike_backward: i8,
+    // TODO: add here new properties of edges
 }
 
 impl EdgeProperties {
@@ -51,6 +52,7 @@ impl EdgeProperties {
             car_backward: UNKNOWN,
             bike_forward: UNKNOWN,
             bike_backward: UNKNOWN,
+            // TODO: add here new properties of edges
         }
     }
 
@@ -77,6 +79,8 @@ impl EdgeProperties {
         if self.foot == UNKNOWN {
             self.foot = FOOT_FORBIDDEN;
         }
+        // TODO: add here setting of values
+
     }
 
     // Accessible means that at least one mean of transportation can use it in one direction
@@ -94,6 +98,7 @@ impl EdgeProperties {
 
     pub fn update_with_str(&mut self, key: &str, val: &str) {
         match key {
+            // TODO: add here new tag keys and match them to given values
             "highway" => {
                 match val {
                     "cycleway" | "path" | "footway" | "steps" | "pedestrian" => {

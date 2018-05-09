@@ -30,6 +30,7 @@ pub fn csv(nodes: Vec<Node>, edges: Vec<Edge>) {
                      edge.as_wkt()))
             .expect("CSV: unable to write edge");
     }
+    // TODO: add here to write more information about an edge
 
     let nodes_path = std::path::Path::new("nodes.csv");
     let mut nodes_csv = csv::Writer::from_file(nodes_path).unwrap();
@@ -38,6 +39,7 @@ pub fn csv(nodes: Vec<Node>, edges: Vec<Edge>) {
         nodes_csv.encode((node.id, node.coord.lon, node.coord.lat))
             .expect("CSV: unable to write node");
     }
+    // TODO: add here to write more information about a node
 }
 
 // pub fn pg(nodes: Vec<Node>, edges: Vec<Edge>) {}
