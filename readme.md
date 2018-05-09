@@ -8,3 +8,7 @@ It converts an OpenStreetMap file (in the `.pbf` format) into a CSV file.
 Get a rust distribution with `cargo`: https://www.rust-lang.org/en-US/downloads.html
 
 Run `cargo install osm4routing`
+
+## Run
+
+Run `cargo run --release  <file.pbf>`
